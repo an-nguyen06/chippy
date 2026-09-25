@@ -39,7 +39,4 @@ export const signUp = async (req, res) => {
 
 //API Signin
 export const signIn = async (req, res) => {
-
-
-
-
+}
