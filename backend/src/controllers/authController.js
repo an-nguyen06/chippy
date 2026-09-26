@@ -1,5 +1,11 @@
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import User from "../models/user.js";
+import Session from "../models/session.js";
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+
+const ACCESS_TOKEN_TTL = '30m'; //deploy: <15m
+const REFRESH_TOKEN_TTL = 14*24*60*60*1000; //14 days in miliseconds
 
 //API signUp
 export const signUp = async (req, res) => {
