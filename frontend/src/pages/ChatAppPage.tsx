@@ -18,6 +18,7 @@ import { ConversationSkeleton } from "@/components/skeleton/conversationSkeleton
 import { ChatWindowSkeleton } from "@/components/skeleton/chatWindowSkeleton";
 import { ChatWindow } from "@/components/chat/chatWindow";
 import { socket } from "@/lib/socket";
+import { KaomojiLibrary } from "@/components/kaomoji/kaomojiLibrary";
 import "./signup.css";
 import "./chat.css";
 
@@ -98,9 +99,9 @@ export default function ChatAppPage() {
   return <TooltipProvider><SidebarProvider className="chippy-workspace" data-compact={user?.preferences?.compactMode || undefined} data-reduced-motion={user?.preferences?.reduceMotion || undefined}>
     <AppSidebar view={view} onNavigate={navigate} conversations={conversations} selectedId={selected?._id} onSelect={(chat) => {setSelected(chat); setView("messages");}} loading={loading} error={error} onRetry={() => setVersion((value) => value + 1)} />
     <SidebarInset className="chippy-main">
-      <header className="chat-topbar"><div><SidebarTrigger /><span>chippy.exe <span aria-hidden="true">/</span> {view}</span></div><span className="chat-presence"><i /> your little corner</span></header>
+      <header className="chat-topbar"><div><SidebarTrigger /><span>chippy.exe <span aria-hidden="true">/</span> {view}</span></div></header>
       <div className="chat-content">
-        <div className="chat-page-heading"><div><span className="chat-eyebrow">a place to stay a little closer</span><h1>{titles[view]}</h1></div><FriendListModal onCreated={(conversation) => {setSelected(conversation); setView("messages"); setVersion((value) => value + 1);}} /></div>
+        <div className="chat-page-heading"><div><h1>{titles[view]}</h1></div><FriendListModal onCreated={(conversation) => {setSelected(conversation); setView("messages"); setVersion((value) => value + 1);}} /></div>
         {loading && (view === "messages" ? selected ? <ChatWindowSkeleton /> : <ConversationSkeleton /> : view === "friends" ? <ConversationSkeleton /> : null)}
         {error && <div role="status" className="chat-error">{error} <Button variant="outline" onClick={() => setVersion((value) => value + 1)}>Try again</Button></div>}
         {!loading && !error && view === "messages" && <>
@@ -124,13 +125,16 @@ export default function ChatAppPage() {
             {requestTab === "received" ? <ReceivedRequest refreshKey={requestVersion} onChanged={() => setVersion((value) => value + 1)} /> : <SentRequest refreshKey={requestVersion} />}
           </div>
         </section>}
-        {view === "kaomoji" && <section className="chat-window"><div className="chat-window-bar">✧ pocket expressions</div><div className="chat-window-body"><p className="chat-muted">Click an expression to copy it.</p><div className="kaomoji-grid">{["(｡•ᴗ•｡)", "(づ｡•ᴗ•｡)づ", "(˶ᵔ ᵕ ᵔ˶)", "(≧▽≦)", "(╥﹏╥)", "♡(˃͈ દ ˂͈ ༶ )"].map((face) => <button key={face} onClick={async () => {try {await navigator.clipboard.writeText(face); toast.success("Copied to your pocket!");} catch {toast.error("Couldn't copy. Try selecting the expression.");}}}>{face}</button>)}</div></div></section>}
+        {view === "kaomoji" && <section className="chat-window"><div className="chat-window-bar">✧ kaomoji collection</div><div className="chat-window-body"><KaomojiLibrary /></div></section>}
         {view === "profile" && <ProfileCard />}
-        <footer className="chat-bottom-note">small messages, lovely connections. <span>✧</span></footer>
+
       </div>
     </SidebarInset>
   </SidebarProvider></TooltipProvider>;
 }
+
+
+
 
 
 

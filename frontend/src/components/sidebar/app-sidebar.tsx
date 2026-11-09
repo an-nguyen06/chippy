@@ -12,10 +12,11 @@ export function AppSidebar({view, onNavigate, conversations, selectedId, onSelec
 }) {
   const userId = useAuthStore((state) => state.user?._id);
   return <Sidebar collapsible="icon" className="chippy-sidebar">
-    <SidebarHeader><a href="/" className="sidebar-brand" aria-label="Chippy home"><Sparkles size={24} /><span className="group-data-[collapsible=icon]:hidden">chippy</span></a><span className="sidebar-edition group-data-[collapsible=icon]:hidden">your friendship desktop · v.01</span></SidebarHeader>
+    <SidebarHeader><a href="/" className="sidebar-brand" aria-label="Chippy home"><Sparkles size={24} /><span className="group-data-[collapsible=icon]:hidden">chippy</span></a></SidebarHeader>
     <SidebarSeparator />
     <SidebarContent><NavMain view={view} onNavigate={onNavigate} /><NavProject conversations={conversations} userId={userId} selectedId={selectedId} onSelect={onSelect} loading={loading} error={error} onRetry={onRetry} /><NavSecondary view={view} onNavigate={onNavigate} /></SidebarContent>
     <SidebarSeparator /><SidebarFooter><NavUser onProfile={() => onNavigate("profile")} /></SidebarFooter><SidebarRail />
   </Sidebar>;
 }
+
 

@@ -77,11 +77,11 @@ export function FriendListModal({onCreated}: {onCreated: (conversation: ChatSumm
   const filtered = friends.filter((friend) => `${friend.displayName} ${friend.username}`.toLowerCase().includes(search.trim().toLowerCase()));
   return <>
     <Button onClick={show}><MessageCirclePlus /> New chat</Button>
-    <dialog ref={dialog} className="friend-request-dialog new-chat-dialog" aria-labelledby="new-chat-title" aria-describedby="new-chat-description" onClose={() => setOpen(false)} onCancel={(event) => {if (submitting.current) event.preventDefault();}}>
+    <dialog ref={dialog} className="friend-request-dialog new-chat-dialog" aria-labelledby="new-chat-title" onClose={() => setOpen(false)} onCancel={(event) => {if (submitting.current) event.preventDefault();}}>
       <div className="chat-window-bar"><span>✧ a fresh little conversation</span><button type="button" aria-label="Close new chat" disabled={pending} onClick={close}><X size={16} /></button></div>
       <form className="friend-dialog-body" onSubmit={submit} noValidate>
         <h2 id="new-chat-title">Gather your people</h2>
-        <p id="new-chat-description">A one-on-one hello, or a little circle of friends.</p>
+
         <div className="friend-request-tabs" role="group" aria-label="Conversation type">
           <Button type="button" disabled={pending} variant={mode === "direct" ? "default" : "outline"} aria-pressed={mode === "direct"} onClick={() => {setMode("direct"); setSelected((previous) => previous.slice(0, 1)); setError("");}}>Direct chat</Button>
           <Button type="button" disabled={pending} variant={mode === "group" ? "default" : "outline"} aria-pressed={mode === "group"} onClick={() => {setMode("group"); setError("");}}><Users /> Group chat</Button>
@@ -90,7 +90,7 @@ export function FriendListModal({onCreated}: {onCreated: (conversation: ChatSumm
         <label htmlFor="new-chat-search" className="invite-search-label"><Search size={14} /> Find a friend</label>
         <Input id="new-chat-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name or username" disabled={pending || loading} />
         <SelectedUsersList users={selected} onRemove={(id) => {setSelected((previous) => previous.filter((friend) => friend._id !== id)); setError("");}} disabled={pending} />
-        {loading ? <p role="status" className="chat-muted">Finding your people…</p> : loadError ? <div role="alert" className="friend-request-error">{loadError} <Button type="button" variant="outline" onClick={() => setVersion((value) => value + 1)}>Try again</Button></div> : !friends.length ? <p className="chat-muted">Your circle is waiting to grow. Add a friend from Friend requests first.</p> : <InviteSuggestionList users={filtered} selectedIds={selected.map((friend) => friend._id)} onToggle={toggle} disabled={pending} />}
+        {loading ? <p role="status" className="chat-muted">Finding your people…</p> : loadError ? <div role="alert" className="friend-request-error">{loadError} <Button type="button" variant="outline" onClick={() => setVersion((value) => value + 1)}>Try again</Button></div> : !friends.length ? null : <InviteSuggestionList users={filtered} selectedIds={selected.map((friend) => friend._id)} onToggle={toggle} disabled={pending} />}
         {error && <p role="alert" className="friend-request-error">{error}</p>}
         <div className="friend-request-actions"><Button type="button" variant="outline" disabled={pending} onClick={close}>Maybe later</Button><Button type="submit" disabled={pending || loading || !!loadError || !selected.length}>{pending ? "Opening…" : mode === "group" ? "Create group ♡" : "Start chatting ↗"}</Button></div>
       </form>
@@ -98,3 +98,4 @@ export function FriendListModal({onCreated}: {onCreated: (conversation: ChatSumm
   </>;
 }
 export default FriendListModal;
+
