@@ -1,4 +1,6 @@
 import express from "express";
+import {createServer} from "node:http";
+import {setupSocket} from "./libs/socket.js";
 import dotenv from "dotenv";
 import {connectDB} from "./libs/db.js";
 import authRoute from "./routes/authRoute.js";
@@ -11,6 +13,8 @@ import { protectedRoute } from "./middlewares/authMiddleware.js";
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
+app.set("io", setupSocket(httpServer));
 const PORT = process.env.PORT || 3000;
 
 // middlewares
@@ -27,7 +31,7 @@ app.use("/api/friends", friendRoute);
 app.use("/api/conversations", conversationRoute);
 
 connectDB().then ( () => {
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
         console.log(`server starts at ${PORT}`);
     });
 });

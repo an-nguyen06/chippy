@@ -1,6 +1,7 @@
 ﻿import mongoose from "mongoose";
 import Message from "../models/message.js";
 import Conversation from "../models/conversation.js";
+import {publishMessage} from "../libs/socket.js";
 
 import { PUBLIC_PROFILE, httpError, respondError, validateRequest, readContent, requireConversation, readPagination, buildMessageFilter, paginateMessages } from "../utils/messageHelper.js";
 
@@ -37,6 +38,7 @@ export const sendMessage = async (req, res, next) => {
                 $set: {lastMessage: message._id, lastMessageAt: message.createdAt},
             }, {session});
         });
+        await publishMessage(req, "message:new", req.params.conversationId, {message});
         return res.status(201).json({message});
     } catch (error) {
         return respondError(error, res, next);
@@ -54,6 +56,7 @@ export const editMessage = async (req, res, next) => {
             sender: req.user._id,
         }, {$set: {content}}, {new: true, runValidators: true});
         if (!message) throw httpError(404, "Message not found or you are not its sender");
+        await publishMessage(req, "message:updated", req.params.conversationId, {message});
         return res.status(200).json({message});
     } catch (error) {
         return respondError(error, res, next);
@@ -84,6 +87,7 @@ export const deleteMessage = async (req, res, next) => {
                 $set: {lastMessage, lastMessageAt},
             }, {session});
         });
+        await publishMessage(req, "message:deleted", req.params.conversationId, {messageId: req.params.messageId});
         return res.sendStatus(204);
     } catch (error) {
         return respondError(error, res, next);

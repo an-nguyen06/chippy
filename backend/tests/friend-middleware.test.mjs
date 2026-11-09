@@ -38,7 +38,7 @@ test("friend middleware authorization", async (t) => {
     });
     await t.test("new requests reject missing users, existing friends, and pending pairs", async (t) => {
         let exists = false, friends = false, pending = false;
-        t.mock.method(User, "exists", async () => exists);
+        t.mock.method(User, "exists", async (filter) => filter["privacy.allowFriendRequests"] === false ? false : exists);
         t.mock.method(Friend, "exists", async () => friends);
         t.mock.method(FriendRequest, "exists", async (query) => {
             assert.equal(query.pairKey, `${a}:${b}`);

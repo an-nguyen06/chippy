@@ -2,6 +2,7 @@
 import Conversation from "../models/conversation.js";
 import Friend from "../models/friend.js";
 import User from "../models/user.js";
+import {publishMessage} from "../libs/socket.js";
 // Register the model used by lastMessage population even outside server.js.
 import "../models/message.js";
 
@@ -85,6 +86,7 @@ export const createConversation = async (req, res, next) => {
             if (!conversation) throw error;
             return res.status(200).json({conversation});
         }
+        await publishMessage(req, "conversation:created", conversation._id, {});
         return res.status(201).json({conversation});
     } catch (error) { return handleError(error, res, next); }
 };

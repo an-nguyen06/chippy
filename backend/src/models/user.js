@@ -34,6 +34,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         maxlength: 500,
     },
+    preferences: {
+        compactMode: {type: Boolean, default: false},
+        reduceMotion: {type: Boolean, default: false},
+    },
+    privacy: {
+        allowFriendRequests: {type: Boolean, default: true},
+    },
     phone: {
         type: String,
         sparse: true, //can be null, but not duplicate

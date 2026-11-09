@@ -7,6 +7,10 @@ export interface AuthUser {
   email: string;
   displayName: string;
   avatarUrl?: string;
+  bio?: string;
+  phone?: string;
+  preferences?: {compactMode?: boolean; reduceMotion?: boolean};
+  privacy?: {allowFriendRequests?: boolean};
 }
 interface SignupInput {
   username: string;

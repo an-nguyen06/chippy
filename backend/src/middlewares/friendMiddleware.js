@@ -50,6 +50,9 @@ export const canSendFriendRequest = async (req, res, next) => {
         if (!await User.exists({_id: pair.target})) {
             return res.status(404).json({message: "User not found"});
         }
+        if (await User.exists({_id: pair.target, "privacy.allowFriendRequests": false})) {
+            return res.status(403).json({message: "This user isn't accepting new friend requests"});
+        }
         if (await Friend.exists({user1: pair.user1, user2: pair.user2})) {
             return res.status(409).json({message: "You are already friends"});
         }
