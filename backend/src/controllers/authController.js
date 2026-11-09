@@ -92,6 +92,7 @@ export const signIn = async (req, res) => {
         })
 
         //acess token: back to res
+    res.set('Cache-Control', 'no-store');
     return res.status(200).json({message: `User ${user.displayName} has logged in`, accessToken});
     
     }
@@ -146,7 +147,7 @@ export const refreshAccessToken = async (req, res) => {
         }
         const accessToken = jwt.sign({userId: session.userId}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL});
         res.set('Cache-Control', 'no-store');
-        return res.status(200).json({accessToken});
+        return res.status(200).json({accessToken, userId: session.userId.toString()});
     } catch (error) {
         console.error('error refreshing access token', error);
         return res.status(500).json({message: 'system error'});

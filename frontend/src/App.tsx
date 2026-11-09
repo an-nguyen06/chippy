@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import SignUpPage from "./pages/SignUpPage";
 import SignInPage from "./pages/SignInPage";
 import ChatAppPage from "./pages/ChatAppPage";
+import ComingSoonPage from "./pages/ComingSoonPage";
 import { ProtectedRoute } from "./components/protected-route";
 import { GuestRoute } from "./components/guest-route";
 import { useEffect } from "react";
@@ -21,6 +22,7 @@ function App() {
       <Toaster richColors />
       <BrowserRouter>
         <Routes>
+          <Route path="/coming-soon/:section" element={<ComingSoonPage />} />
           <Route element={<GuestRoute />}>
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />

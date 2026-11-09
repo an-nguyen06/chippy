@@ -53,7 +53,6 @@ export function SigninForm() {
         <div className="signup-intro">
           <span className="signup-kaomoji" aria-hidden="true">(｡•ᴗ•｡)ﾉ♡</span>
           <h1 id="signin-title">Hello again</h1>
-          <p>Your people await.</p>
         </div>
         <form className="signup-form" noValidate onSubmit={handleSubmit} onChange={(event) => {
           if (event.target instanceof HTMLInputElement) {
@@ -65,13 +64,13 @@ export function SigninForm() {
         }}>
           <div className="signup-field">
             <label htmlFor="signin-username">Username</label>
-            <input id="signin-username" name="username" autoComplete="username" placeholder="your internet name" required aria-invalid={!!errors.username || undefined} aria-describedby={errors.username ? "signin-username-error" : undefined} />
+            <input id="signin-username" name="username" autoComplete="username" required aria-invalid={!!errors.username || undefined} aria-describedby={errors.username ? "signin-username-error" : undefined} />
             {errors.username && <p className="signup-field-error" id="signin-username-error">{errors.username}</p>}
           </div>
           <div className="signup-field">
             <label htmlFor="signin-password">Password</label>
             <div className="signin-password-input">
-              <input id="signin-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="your secret password" required aria-invalid={!!errors.password || undefined} aria-describedby={errors.password ? "signin-password-error" : undefined} />
+              <input id="signin-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required aria-invalid={!!errors.password || undefined} aria-describedby={errors.password ? "signin-password-error" : undefined} />
               <button className="password-toggle" type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
               </button>
@@ -79,11 +78,10 @@ export function SigninForm() {
             {errors.password && <p className="signup-field-error" id="signin-password-error">{errors.password}</p>}
           </div>
           <button className="signup-submit" type="submit" disabled={isLoading}>{isLoading ? "Signing in…" : "Sign in"} <span aria-hidden="true">↗</span></button>
-          <p className="signup-message" role="status">{apiError || message || (location.state?.accountCreated ? "Account created! Sign in with your username." : "Your little corner is right where you left it.")}</p>
+          {(apiError || message || location.state?.accountCreated) && <p className="signup-message" role="status">{apiError || message || "Account created! Sign in with your username."}</p>}
           <p className="auth-switch">New around here? <Link to="/signup">Join Chippy</Link></p>
         </form>
       </div>
-      <div className="signup-window-status"><span>♡ a space for you & your people</span><span aria-hidden="true">✦</span></div>
     </section>
   );
 }

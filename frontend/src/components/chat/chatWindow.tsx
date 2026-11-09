@@ -113,7 +113,7 @@ export function ChatWindow({conversation, onBack, onConversationUpdated}: {conve
     {error && <p role="alert" className="message-error">{error}</p>}
     <MessageList messages={messages} userId={userId} hasMore={hasMore} loadingOlder={loadingOlder} onLoadOlder={() => void loadOlder()} onEdit={(id, content) => mutate("edit", content, id)} onDelete={(id) => mutate("delete", undefined, id)} />
     <MessageInput disabled={!ready || loading || working || loadingOlder} onSend={(content) => mutate("send", content)} />
-    <p className="message-refresh-note" role="status">{connected ? "Connected · new hellos arrive live" : "Reconnecting · you can still send and refresh messages"}</p>
+    {!connected && <p className="message-refresh-note" role="status">Reconnecting · you can still send and refresh messages</p>}
   </section>;
 }
 export default ChatWindow;

@@ -3,6 +3,7 @@ import User from "../models/user.js";
 export const authMe = async (req, res) => {
   try {
     const user = req.user; // from authMiddleware
+    res.set("Cache-Control", "no-store");
 
     return res.status(200).json({
       user,

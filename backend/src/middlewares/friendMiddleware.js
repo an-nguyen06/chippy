@@ -98,3 +98,4 @@ export const canCancelFriendRequest = authorizePendingRequest("sender");
 
 // Controllers must still handle duplicate-key errors (11000), and resolve
 // requests atomically with a status: "pending" filter to avoid concurrent writes.
+

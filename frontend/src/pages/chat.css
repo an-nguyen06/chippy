@@ -10,7 +10,7 @@
 .chippy-avatar img {width: 100%; height: 100%; object-fit: cover;}
 .profile-label {display: flex; flex-direction: column; min-width: 0; font-size: 12px;}
 .profile-label strong {overflow: hidden; text-overflow: ellipsis;}
-.profile-label small {font-family: "Inter Variable", sans-serif; font-size: 10px; color: #87758d;}
+.profile-label small {font-family: var(--font-chippy-ui); font-size: 10px; color: #87758d;}
 .chippy-main {background: #fff8f3; min-width: 0; min-height: 100svh;}
 .chat-topbar {display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 65px; padding: 12px 28px; border-bottom: 1px solid #e4d5df; font-size: 12px;}
 .chat-topbar > div {display: flex; align-items: center; gap: 14px;}
@@ -33,7 +33,7 @@
 .chat-card-grid {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;}
 .conversation-card {display: flex; align-items: flex-start; flex-direction: column; gap: 10px; position: relative; padding: 20px; border: 1px solid #dccbdc; border-radius: 12px; background: #fffcfa; text-align: left; cursor: pointer;}
 .conversation-card:hover {background: #f7effa; border-color: #b6a0c7;}
-.conversation-card > span:last-of-type {font-family: "Inter Variable", sans-serif; font-size: 11px; color: #8f7f95; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;}
+.conversation-card > span:last-of-type {font-family: var(--font-chippy-ui); font-size: 11px; color: #8f7f95; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;}
 .conversation-card > svg:last-child {position: absolute; top: 22px; right: 20px; color: #ac96ba;}
 .conversation-icon {display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: #eee4fa; color: #8b6ea1;}
 .conversation-icon svg {width: 18px; height: 18px;}
@@ -65,7 +65,7 @@
 .friend-request-person p {font-size: 11px; color: #8c7894; margin: 3px 0 0;}
 .friend-request-status {font-size: 10px; color: #8e719d; border: 1px solid #e3d1ed; border-radius: 20px; padding: 3px 9px; background: #f5eafa;}
 .friend-request-bottom {display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 18px;}
-.friend-request-bottom time {font-family: "Inter Variable", sans-serif; font-size: 10px; color: #97839a;}
+.friend-request-bottom time {font-family: var(--font-chippy-ui); font-size: 10px; color: #97839a;}
 .friend-request-actions {display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;}
 .friend-request-error {font-family: "Inter Variable", sans-serif; color: #9d4564; font-size: 12px; line-height: 1.7; margin-top: 12px;}
 .friend-request-pagination {display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 22px; font-size: 11px;}
@@ -131,6 +131,7 @@
 .profile-details dd {margin: 0; overflow-wrap: anywhere;}
 .profile-id-row {display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid #e8dae9;}
 .profile-id-row > div {flex: 1; min-width: 0;}
+.profile-id-row .chat-muted {font-family: var(--font-chippy-ui);}
 .profile-id-row code {font-size: 11px;}
 .chippy-workspace[data-compact="true"] .conversation-card, .chippy-workspace[data-compact="true"] .friend-request-card {padding: 12px;}
 .chippy-workspace[data-compact="true"] .person-row {padding: 8px 0;}
@@ -257,3 +258,18 @@
 .sidebar-brand, .chat-page-heading h1 {font-family: var(--font-chippy-brand); font-weight: 400;}
 
 .profile-bio, .profile-details {font-family: var(--font-chippy-ui); font-weight: 400;}
+
+.profile-card-heading > div > p {font-family: var(--font-chippy-ui); font-weight: 400;}
+
+
+
+
+.friend-request-card {font-family: var(--font-chippy-ui);}
+.friend-request-person strong {font-weight: 400;}
+
+.message-composer textarea, .message-edit textarea, .message-composer-tools > span {
+  font-family: var(--font-chippy-ui);
+  font-weight: 400;
+}
+
+.person-row strong, .person-row p {font-family: var(--font-chippy-ui); font-weight: 400;}

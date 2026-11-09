@@ -29,7 +29,7 @@ export function FriendRequestItem({request, direction, onChanged}: {request: Fri
     <div className="friend-request-person">
       <span className="chippy-avatar">{person?.avatarUrl ? <img src={person.avatarUrl} alt="" /> : <UserRound size={18} />}</span>
       <div><strong>{person?.displayName || "Deleted user"}</strong><p>{person ? `@${person.username}` : "This account is no longer available."}</p></div>
-      <span className="friend-request-status">{direction === "incoming" ? "a new hello" : "awaiting a hello"}</span>
+      {direction === "incoming" && <span className="friend-request-status">a new hello</span>}
     </div>
     <div className="friend-request-bottom">
       <time dateTime={request.createdAt}>{new Date(request.createdAt).toLocaleDateString(undefined, {month: "short", day: "numeric", year: "numeric"})}</time>

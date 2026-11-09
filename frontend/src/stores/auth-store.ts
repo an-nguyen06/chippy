@@ -1,5 +1,7 @@
 ﻿import { create } from "zustand";
 import { api, getApiError } from "@/lib/api";
+import type { InternalAxiosRequestConfig } from "axios";
+type SessionRequest = InternalAxiosRequestConfig & {_sessionVersion?: number; _retry?: boolean};
 
 export interface AuthUser {
   _id: string;
@@ -39,6 +41,7 @@ interface AuthState {
 // Only session data is shared. Passwords and field validation stay in the forms.
 // Access tokens stay in memory; the HttpOnly cookie restores the session on reload.
 let refreshPromise: Promise<boolean> | null = null;
+let refreshVersion = -1;
 let initializePromise: Promise<void> | null = null;
 let sessionVersion = 0;
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -50,12 +53,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   clearError: () => set({ error: null }),
   refreshAccessToken: () => {
-    if (refreshPromise) return refreshPromise;
+    if (refreshPromise && refreshVersion === sessionVersion) return refreshPromise;
     const version = sessionVersion;
+    refreshVersion = version;
     refreshPromise = (async () => {
       try {
-        const { data } = await api.post<{ accessToken: string }>("/auth/refresh");
+        const { data } = await api.post<{ accessToken: string; userId?: string }>("/auth/refresh");
         if (version !== sessionVersion) return false;
+        if (get().user && data.userId && get().user?._id !== data.userId) {
+          sessionVersion++;
+          set({user: null, accessToken: null, error: "The account changed in another window. Please sign in again."});
+          return false;
+        }
         if (!data.accessToken) throw new Error("Missing access token");
         set({ accessToken: data.accessToken });
         return true;
@@ -63,7 +72,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (version === sessionVersion) set({ user: null, accessToken: null, error: getApiError(error) });
         return false;
       } finally {
-        refreshPromise = null;
+        if (refreshVersion === version) refreshPromise = null;
       }
     })();
     return refreshPromise;
@@ -99,7 +108,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       return false;
     } finally {
-      set({ isFetchingUser: false });
+      if (version === sessionVersion) set({ isFetchingUser: false });
     }
   },
   signUp: async (values) => {
@@ -118,7 +127,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signIn: async (values) => {
     if (get().isLoading) return false;
     sessionVersion++;
-    set({ isLoading: true, error: null, user: null, accessToken: null });
+    set({ isLoading: true, isFetchingUser: false, error: null, user: null, accessToken: null });
     try {
       const { data } = await api.post<{ accessToken: string }>("/auth/signin", values);
       set({ accessToken: data.accessToken });
@@ -140,7 +149,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       sessionVersion++;
       await api.post("/auth/signout");
-      set({ user: null, accessToken: null });
+      set({ user: null, accessToken: null, isFetchingUser: false });
       return true;
     } catch (error) {
       set({ error: getApiError(error) });
@@ -153,15 +162,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 // Read state at request time so requests always use the current access token.
 api.interceptors.request.use((config) => {
+  const request = config as SessionRequest;
+  if (request._sessionVersion !== undefined && request._sessionVersion !== sessionVersion) {
+    throw new Error("This request belongs to a previous session");
+  }
+  request._sessionVersion = sessionVersion;
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 // Auth endpoints never retry themselves. Concurrent failures share one refresh.
-api.interceptors.response.use((response) => response, async (error) => {
-  const request = error.config as (import("axios").InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+api.interceptors.response.use((response) => {
+  if ((response.config as SessionRequest)._sessionVersion !== sessionVersion) throw new Error("The session changed while this request was loading");
+  return response;
+}, async (error) => {
+  const request = error.config as SessionRequest | undefined;
+  if (request?._sessionVersion !== undefined && request._sessionVersion !== sessionVersion) return Promise.reject(error);
   const status = error.response?.status;
-  if (!request || request.url?.startsWith("/auth/") || (status !== 401 && status !== 403)) {
+  const authenticationError = status === 401 || (status === 403 && error.response?.data?.message === "expired/incorrent access token");
+  if (!request || request.url?.startsWith("/auth/") || !authenticationError) {
     return Promise.reject(error);
   }
   if (request._retry) {

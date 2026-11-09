@@ -87,7 +87,6 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"section
         <div className="signup-intro">
           <span className="signup-kaomoji" aria-hidden="true">(づ｡•ᴗ•｡)づ</span>
           <h1 id="signup-title">Join Chippy</h1>
-          <p>Your people are just a little hello away.</p>
         </div>
         <form className="signup-form" noValidate onSubmit={handleSubmit} onChange={clearFieldError}>
           <div className="signup-passwords">
@@ -103,33 +102,32 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"section
             </div>
           </div>
           <div className="signup-field">
-            <label htmlFor="username">Username <span>your little internet name</span></label>
-            <input id="username" name="username" autoComplete="username" placeholder="e.g. moonflower" required {...fieldAccessibility("username")} />
+            <label htmlFor="username">Username</label>
+            <input id="username" name="username" autoComplete="username" required {...fieldAccessibility("username")} />
             {fieldError("username")}
           </div>
           <div className="signup-field">
             <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required {...fieldAccessibility("email")} />
+            <input id="email" name="email" type="email" autoComplete="email" required {...fieldAccessibility("email")} />
             {fieldError("email")}
           </div>
           <div className="signup-passwords">
             <div className="signup-field">
               <label htmlFor="password">Password</label>
-              <input id="password" name="password" type="password" minLength={8} autoComplete="new-password" placeholder="8+ characters" required {...fieldAccessibility("password")} />
+              <input id="password" name="password" type="password" minLength={8} autoComplete="new-password" required {...fieldAccessibility("password")} />
               {fieldError("password")}
             </div>
             <div className="signup-field">
               <label htmlFor="confirmPassword">Confirm password</label>
-              <input id="confirmPassword" name="confirmPassword" type="password" minLength={8} autoComplete="new-password" placeholder="one more time" required {...fieldAccessibility("confirmPassword")} />
+              <input id="confirmPassword" name="confirmPassword" type="password" minLength={8} autoComplete="new-password" required {...fieldAccessibility("confirmPassword")} />
               {fieldError("confirmPassword")}
             </div>
           </div>
           <button className="signup-submit" type="submit" disabled={isLoading}>{isLoading ? "Creating account…" : "Create account"} <span aria-hidden="true">↗</span></button>
-          <p className="signup-message" id="signup-message" role="status">{apiError || message || "A new friendship starts with hello."}</p>
+          {(apiError || message) && <p className="signup-message" id="signup-message" role="status">{apiError || message}</p>}
           <p className="auth-switch">Already a little friend? <Link to="/signin">Sign in</Link></p>
         </form>
       </div>
-      <div className="signup-window-status"><span>♡ a space for you & your people</span><span aria-hidden="true">✦</span></div>
     </section>
   );
 }

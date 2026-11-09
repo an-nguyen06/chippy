@@ -56,7 +56,8 @@ test('refresh endpoint validates cookie, expiry, and session user', async (t) =>
       const claims = jwt.verify(response.body.accessToken, process.env.ACCESS_TOKEN_SECRET);
       assert.equal(claims.userId, 'user-1');
       assert.equal(claims.exp - claims.iat, 30 * 60);
-      assert.deepEqual(Object.keys(response.body), ['accessToken']);
+      assert.deepEqual(Object.keys(response.body), ['accessToken', 'userId']);
+      assert.equal(response.body.userId, 'user-1');
       assert.equal(response.headers['Cache-Control'], 'no-store');
     });
   } finally {

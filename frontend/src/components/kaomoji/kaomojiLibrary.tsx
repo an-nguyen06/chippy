@@ -44,7 +44,7 @@ export function KaomojiLibrary({onSelect, compact = false, disabled = false}: {o
         <p className="chat-muted" role="status">{loading ? "Finding expressions…" : `${total.toLocaleString()} expressions · ${onSelect ? "click to insert" : "click to copy"}`}</p>
         {error ? <div className="friend-request-error" role="alert">{error} <Button type="button" variant="outline" onClick={() => setVersion((value) => value + 1)}>Try again</Button></div> : !loading && !items.length ? <p className="chat-muted">No expressions found. Try another search or category.</p> : <div className="kaomoji-grid" aria-busy={loading}>{!loading && items.map((item) => <button key={item._id} type="button" disabled={disabled} title={item.categories.join(", ")} onClick={() => void choose(item.text)}>{item.text}</button>)}</div>}
         {!loading && !error && total > limit && <div className="friend-request-pagination"><Button type="button" variant="outline" disabled={page === 1} onClick={() => {setPage((value) => value - 1); setLoading(true);}}>Previous</Button><span>{page} / {Math.ceil(total / limit)}</span><Button type="button" variant="outline" disabled={page * limit >= total} onClick={() => {setPage((value) => value + 1); setLoading(true);}}>Next</Button></div>}
-        <a className="kaomoji-attribution" href="https://github.com/an-nguyen06/emoticon_kaomoji_dataset" target="_blank" rel="noreferrer">Dataset by an-nguyen06 ↗</a>
+        <a className="kaomoji-attribution" href="https://github.com/ekohrt/emoticon_kaomoji_dataset" target="_blank" rel="noreferrer">https://github.com/ekohrt/emoticon_kaomoji_dataset</a>
     </div>;
 }
 export default KaomojiLibrary;

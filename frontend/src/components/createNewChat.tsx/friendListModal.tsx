@@ -9,6 +9,7 @@ import type { ChatSummary } from "@/lib/conversation";
 import { api, getApiError } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
+
 export function FriendListModal({onCreated}: {onCreated: (conversation: ChatSummary) => void}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const submitting = useRef(false);
@@ -89,13 +90,18 @@ export function FriendListModal({onCreated}: {onCreated: (conversation: ChatSumm
         {mode === "group" && <><label htmlFor="new-group-name">Group name</label><Input id="new-group-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={100} disabled={pending} placeholder="e.g. fairy circle" required /></>}
         <label htmlFor="new-chat-search" className="invite-search-label"><Search size={14} /> Find a friend</label>
         <Input id="new-chat-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name or username" disabled={pending || loading} />
+
         <SelectedUsersList users={selected} onRemove={(id) => {setSelected((previous) => previous.filter((friend) => friend._id !== id)); setError("");}} disabled={pending} />
         {loading ? <p role="status" className="chat-muted">Finding your people…</p> : loadError ? <div role="alert" className="friend-request-error">{loadError} <Button type="button" variant="outline" onClick={() => setVersion((value) => value + 1)}>Try again</Button></div> : !friends.length ? null : <InviteSuggestionList users={filtered} selectedIds={selected.map((friend) => friend._id)} onToggle={toggle} disabled={pending} />}
         {error && <p role="alert" className="friend-request-error">{error}</p>}
-        <div className="friend-request-actions"><Button type="button" variant="outline" disabled={pending} onClick={close}>Maybe later</Button><Button type="submit" disabled={pending || loading || !!loadError || !selected.length}>{pending ? "Opening…" : mode === "group" ? "Create group ♡" : "Start chatting ↗"}</Button></div>
+        <div className="friend-request-actions"><Button type="button" variant="outline" disabled={pending} onClick={close}>Maybe later</Button><Button type="submit" disabled={pending || loading || !!loadError || !selected.length}>{pending ? "Opening…" : mode === "group" ? "Create group ♡" : "Start chatting"}</Button></div>
       </form>
+
     </dialog>
   </>;
 }
 export default FriendListModal;
+
+
+
 

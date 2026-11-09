@@ -26,6 +26,73 @@ function reset() {
 }
 
 test("authentication store request and state transitions", async (t) => {
+  await t.test("signing out then signing in as another user replaces the profile", async () => {
+    reset();
+    const other = {...user, _id: "user-2", username: "sunflower", displayName: "Sun Flower"};
+    store.setState({user, accessToken: "old-token"});
+    api.defaults.adapter = async (config) => {
+      if (config.url === "/auth/signout") return response(config, undefined, 204);
+      if (config.url === "/auth/signin") {
+        assert.equal(JSON.parse(config.data).username, "sunflower");
+        return response(config, {accessToken: "new-token"});
+      }
+      assert.equal(config.headers.Authorization, "Bearer new-token");
+      return response(config, {user: other});
+    };
+    assert.equal(await store.getState().signOut(), true);
+    assert.equal(store.getState().user, null);
+    assert.equal(await store.getState().signIn({username: "sunflower", password: "test-password"}), true);
+    assert.deepEqual(store.getState().user, other);
+  });
+  await t.test("late old-account errors cannot replay requests using the new account", async () => {
+    reset();
+    store.setState({user, accessToken: "old-token"});
+    let release, started;
+    const requestStarted = new Promise((resolve) => {started = resolve;});
+    let oldAttempts = 0;
+    const other = {...user, _id: "user-2", username: "sunflower"};
+    api.defaults.adapter = async (config) => {
+      if (config.url === "/friends/requests") {
+        oldAttempts++;
+        started();
+        await new Promise((resolve) => {release = resolve;});
+        throw new AxiosError("Expired", "ERR_BAD_REQUEST", config, {}, response(config, {}, 401));
+      }
+      if (config.url === "/auth/signout") return response(config, undefined, 204);
+      if (config.url === "/auth/signin") return response(config, {accessToken: "new-token"});
+      return response(config, {user: other});
+    };
+    const pending = api.post("/friends/requests", {recipientId: "friend"});
+    const rejected = assert.rejects(pending);
+    await requestStarted;
+    await store.getState().signOut();
+    await store.getState().signIn({username: "sunflower", password: "test-password"});
+    release();
+    await rejected;
+    assert.equal(oldAttempts, 1);
+    assert.equal(store.getState().user._id, "user-2");
+    assert.equal(store.getState().accessToken, "new-token");
+  });
+  await t.test("a refresh cookie belonging to a different account cannot keep the old profile", async () => {
+    reset();
+    store.setState({user, accessToken: "old-token"});
+    api.defaults.adapter = async (config) => response(config, {accessToken: "other-token", userId: "user-2"});
+    assert.equal(await store.getState().refreshAccessToken(), false);
+    assert.equal(store.getState().user, null);
+    assert.equal(store.getState().accessToken, null);
+    assert.match(store.getState().error, /account changed/);
+  });
+  await t.test("friend-request permission errors do not refresh tokens or sign out", async () => {
+    reset();
+    store.setState({ user, accessToken: "valid-token" });
+    api.defaults.adapter = async (config) => {
+      assert.equal(config.url, "/friends/requests");
+      throw new AxiosError("Forbidden", "ERR_BAD_REQUEST", config, {}, response(config, {message: "This user isn't accepting new friend requests"}, 403));
+    };
+    await assert.rejects(api.post("/friends/requests", {recipientId: "friend"}));
+    assert.equal(store.getState().accessToken, "valid-token");
+    assert.deepEqual(store.getState().user, user);
+  });
   await t.test("startup without a refresh session completes as a guest", async () => {
     reset();
     let requests = 0;
@@ -71,7 +138,7 @@ test("authentication store request and state transitions", async (t) => {
         return response(config, { accessToken: "renewed" });
       }
       if (config.headers.Authorization === "Bearer expired") {
-        throw new AxiosError("Expired", "ERR_BAD_REQUEST", config, {}, response(config, {}, 403));
+        throw new AxiosError("Expired", "ERR_BAD_REQUEST", config, {}, response(config, {message: "expired/incorrent access token"}, 403));
       }
       assert.equal(config.headers.Authorization, "Bearer renewed");
       return response(config, { user });

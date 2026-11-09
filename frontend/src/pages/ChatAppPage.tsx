@@ -109,7 +109,7 @@ export default function ChatAppPage() {
             setConversations((previous) => [chat, ...previous.filter((item) => item._id !== chat._id)]);
             setSelected((current) => current?._id === chat._id ? chat : current);
           }} /> : <>
-          <section className="chat-welcome"><span className="welcome-kaomoji">(づ｡•ᴗ•｡)づ</span><h2>Hello, {user?.displayName}.</h2><p>A familiar name. A tiny hello. A whole conversation.</p><Button onClick={() => navigate("friends")}>Find your people <ArrowUpRight /></Button></section>
+          <section className="chat-welcome"><span className="welcome-kaomoji">(づ｡•ᴗ•｡)づ</span><h2>Hello, {user?.displayName}.</h2><Button onClick={() => navigate("friends")}>Find your people <ArrowUpRight /></Button></section>
           <div className="chat-section-heading"><h2>Little conversations</h2><span>{conversations.length} conversations</span></div>
           {conversations.length ? <div className="chat-card-grid">{conversations.map((chat) => <button className="conversation-card" key={chat._id} onClick={() => setSelected(chat)}><span className="conversation-icon"><MessageCircle /></span><strong>{conversationName(chat, user?._id)}</strong><span>{chat.lastMessage?.content || "Ready for a little hello"}</span><ArrowUpRight size={16} /></button>)}</div> : <div className="chat-empty"><Mail /><p>Your inbox is a little quiet.</p><span>Start a conversation from your Friends tab.</span></div>}
           </>}
