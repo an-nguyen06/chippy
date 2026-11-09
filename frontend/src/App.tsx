@@ -5,8 +5,15 @@ import SignInPage from "./pages/SignInPage";
 import AccountPage from "./pages/AccountPage";
 import { ProtectedRoute } from "./components/protected-route";
 import { GuestRoute } from "./components/guest-route";
+import { useEffect } from "react";
+import { useAuthStore } from "./stores/auth-store";
 
 function App() {
+  const initialize = useAuthStore((state) => state.initialize);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  useEffect(() => { void initialize(); }, [initialize]);
+
+  if (!isInitialized) return <main className="signup-page"><p role="status">Opening your little corner…</p></main>;
   return (
     <>
       <Toaster richColors />

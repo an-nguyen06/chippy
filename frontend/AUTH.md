@@ -20,14 +20,16 @@ Local requests use /api through Vite's proxy. A production host must route /api 
 
 Signup sends username, email, firstName, lastName, and password. Success redirects to signin. Signin uses username and password, then fetches the profile using the returned bearer token. Import the shared api client for future protected requests; its interceptor adds the current access token.
 
-Tokens currently stay in memory. Reloading requires signing in again; there is no automatic refresh endpoint yet. A 401 or 403 clears the frontend session. Signout revokes the refresh-token session and clears its cookie. Development cookies use SameSite=Lax without Secure; production uses SameSite=None with Secure.
+Access tokens stay in memory. On startup, initialize() calls POST /api/auth/refresh using the HttpOnly refresh cookie, fetches the profile, and then enables routing. Protected requests that fail with 401 or 403 share one refresh call and retry once with the new token. Auth endpoints never retry themselves. Expired or revoked refresh sessions clear authentication and send the user to signin. Refresh-session expiry is checked explicitly in MongoDB; refresh does not extend the original 14-day expiry. Signout revokes the refresh-token session and clears its cookie. Development cookies use SameSite=Lax without Secure; production uses SameSite=None with Secure.
 
 ## Verification
 
 ```powershell
+node --test backend/tests/refresh.test.mjs
 npm.cmd --prefix frontend test
 npm.cmd --prefix frontend run build
 npm.cmd --prefix frontend run lint
 ```
 
 Store tests mock HTTP responses for signup, signin, profile loading failures, network errors, duplicate submissions, and signout. They do not create database accounts or verify a live MongoDB connection.
+

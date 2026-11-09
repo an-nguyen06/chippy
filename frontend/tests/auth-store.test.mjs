@@ -22,10 +22,137 @@ const user = { _id: "user-1", username: "moonflower", email: "moon@example.com",
 const credentials = { username: "moonflower", password: "test-password" };
 const response = (config, data, status = 200) => ({ config, data, status, statusText: "", headers: {} });
 function reset() {
-  store.setState({ user: null, accessToken: null, isLoading: false, error: null });
+  store.setState({ user: null, accessToken: null, isLoading: false, isFetchingUser: false, isInitialized: false, error: null });
 }
 
 test("authentication store request and state transitions", async (t) => {
+  await t.test("startup without a refresh session completes as a guest", async () => {
+    reset();
+    let requests = 0;
+    api.defaults.adapter = async (config) => {
+      requests++;
+      throw new AxiosError("No session", "ERR_BAD_REQUEST", config, {}, response(config, {}, 401));
+    };
+    await store.getState().initialize();
+    assert.equal(requests, 1);
+    assert.equal(store.getState().isInitialized, true);
+    assert.equal(store.getState().user, null);
+  });
+  await t.test("a refresh response arriving after signout cannot restore access", async () => {
+    reset();
+    store.setState({ user, accessToken: "expired" });
+    let finishRefresh;
+    let startedRefresh;
+    const started = new Promise((resolve) => { startedRefresh = resolve; });
+    api.defaults.adapter = async (config) => {
+      if (config.url === "/auth/refresh") {
+        startedRefresh();
+        await new Promise((resolve) => { finishRefresh = resolve; });
+        return response(config, { accessToken: "late-token" });
+      }
+      return response(config, undefined, 204);
+    };
+    const refreshing = store.getState().refreshAccessToken();
+    await started;
+    await store.getState().signOut();
+    finishRefresh();
+    assert.equal(await refreshing, false);
+    assert.equal(store.getState().accessToken, null);
+    assert.equal(store.getState().user, null);
+  });
+  await t.test("concurrent expired requests share refresh and retry with the new token", async () => {
+    reset();
+    store.setState({ user, accessToken: "expired" });
+    let refreshes = 0;
+    api.defaults.adapter = async (config) => {
+      if (config.url === "/auth/refresh") {
+        refreshes++;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return response(config, { accessToken: "renewed" });
+      }
+      if (config.headers.Authorization === "Bearer expired") {
+        throw new AxiosError("Expired", "ERR_BAD_REQUEST", config, {}, response(config, {}, 403));
+      }
+      assert.equal(config.headers.Authorization, "Bearer renewed");
+      return response(config, { user });
+    };
+    await Promise.all([api.get("/users/me"), api.get("/users/me")]);
+    assert.equal(refreshes, 1);
+    assert.equal(store.getState().accessToken, "renewed");
+    assert.deepEqual(store.getState().user, user);
+  });
+  await t.test("failed refresh clears authentication without retrying auth endpoints", async () => {
+    reset();
+    store.setState({ user, accessToken: "expired" });
+    let refreshes = 0;
+    api.defaults.adapter = async (config) => {
+      if (config.url === "/auth/refresh") refreshes++;
+      throw new AxiosError("Expired", "ERR_BAD_REQUEST", config, {}, response(config, {}, 401));
+    };
+    await assert.rejects(api.get("/users/me"));
+    assert.equal(refreshes, 1);
+    assert.equal(store.getState().user, null);
+    assert.equal(store.getState().accessToken, null);
+  });
+  await t.test("a rejected retry stops rather than refreshing forever", async () => {
+    reset();
+    store.setState({ user, accessToken: "expired" });
+    let refreshes = 0;
+    let attempts = 0;
+    api.defaults.adapter = async (config) => {
+      if (config.url === "/auth/refresh") {
+        refreshes++;
+        return response(config, { accessToken: "renewed" });
+      }
+      attempts++;
+      throw new AxiosError("Unauthorized", "ERR_BAD_REQUEST", config, {}, response(config, {}, 401));
+    };
+    await assert.rejects(api.get("/users/me"));
+    assert.equal(refreshes, 1);
+    assert.equal(attempts, 2);
+    assert.equal(store.getState().user, null);
+  });
+  await t.test("startup restores profile and deduplicates initialization", async () => {
+    reset();
+    const requests = [];
+    api.defaults.adapter = async (config) => {
+      requests.push(config.url);
+      return response(config, config.url === "/auth/refresh" ? { accessToken: "restored" } : { user });
+    };
+    await Promise.all([store.getState().initialize(), store.getState().initialize()]);
+    assert.deepEqual(requests, ["/auth/refresh", "/users/me"]);
+    assert.equal(store.getState().isInitialized, true);
+    assert.deepEqual(store.getState().user, user);
+  });
+  await t.test("fetchUser reads the latest token automatically and updates the profile", async () => {
+    reset();
+    store.setState({ accessToken: "current-token" });
+    api.defaults.adapter = async (config) => {
+      assert.equal(config.url, "/users/me");
+      assert.equal(config.headers.Authorization, "Bearer current-token");
+      assert.equal(store.getState().isFetchingUser, true);
+      return response(config, { user });
+    };
+    assert.equal(await store.getState().fetchUser(), true);
+    assert.deepEqual(store.getState().user, user);
+    assert.equal(store.getState().isFetchingUser, false);
+  });
+  await t.test("fetchUser without a token does not send a request", async () => {
+    reset();
+    api.defaults.adapter = async () => { assert.fail("No anonymous profile request"); };
+    assert.equal(await store.getState().fetchUser(), false);
+  });
+  await t.test("a late profile response cannot restore a signed-out user", async () => {
+    reset();
+    store.setState({ accessToken: "old-token" });
+    api.defaults.adapter = async (config) => {
+      store.setState({ user: null, accessToken: null });
+      return response(config, { user });
+    };
+    assert.equal(await store.getState().fetchUser(), false);
+    assert.equal(store.getState().user, null);
+    assert.equal(store.getState().isFetchingUser, false);
+  });
   await t.test("signup sends required fields without signing the user in", async () => {
     reset();
     const values = { ...credentials, email: user.email, firstName: "Moon", lastName: "Flower" };

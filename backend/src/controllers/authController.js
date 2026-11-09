@@ -126,3 +126,29 @@ export const signOut = async (req, res) => {
         return res.status(500).json({message: "system error"});
     }
 };
+
+// Exchange the HttpOnly refresh cookie for a new short-lived access token.
+export const refreshAccessToken = async (req, res) => {
+    try {
+        const token = req.cookies?.refreshToken;
+        if (typeof token !== 'string' || !token) {
+            return res.status(401).json({message: 'Please sign in again'});
+        }
+        // Check expiry explicitly: MongoDB TTL cleanup is asynchronous.
+        const session = await Session.findOne({refreshToken: token, expiresAt: {$gt: new Date()}});
+        if (!session || !await User.exists({_id: session.userId})) {
+            res.clearCookie('refreshToken', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            });
+            return res.status(401).json({message: 'Session expired. Please sign in again'});
+        }
+        const accessToken = jwt.sign({userId: session.userId}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL});
+        res.set('Cache-Control', 'no-store');
+        return res.status(200).json({accessToken});
+    } catch (error) {
+        console.error('error refreshing access token', error);
+        return res.status(500).json({message: 'system error'});
+    }
+};

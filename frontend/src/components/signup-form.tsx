@@ -47,13 +47,17 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"section
     }
 
     setErrors({});
-    // Use result.data for the account request when the backend is connected.
-    setMessage("Account creation isn't connected yet.");
+    setMessage("");
+    const { username, email, password, firstName, lastName } = result.data;
+    if (await signUp({ username, email, password, firstName, lastName })) {
+      navigate("/signin", { state: { accountCreated: true }, replace: true });
+    }
   }
 
   function clearFieldError(event: FormEvent<HTMLFormElement>) {
     const input = event.target;
     if (!(input instanceof HTMLInputElement)) return;
+    clearError();
     setMessage("");
     setErrors((previous) => ({
       ...previous,
@@ -86,6 +90,18 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"section
           <p>Your people are just a little hello away.</p>
         </div>
         <form className="signup-form" noValidate onSubmit={handleSubmit} onChange={clearFieldError}>
+          <div className="signup-passwords">
+            <div className="signup-field">
+              <label htmlFor="firstName">First name</label>
+              <input id="firstName" name="firstName" autoComplete="given-name" required {...fieldAccessibility("firstName")} />
+              {fieldError("firstName")}
+            </div>
+            <div className="signup-field">
+              <label htmlFor="lastName">Last name</label>
+              <input id="lastName" name="lastName" autoComplete="family-name" required {...fieldAccessibility("lastName")} />
+              {fieldError("lastName")}
+            </div>
+          </div>
           <div className="signup-field">
             <label htmlFor="username">Username <span>your little internet name</span></label>
             <input id="username" name="username" autoComplete="username" placeholder="e.g. moonflower" required {...fieldAccessibility("username")} />
