@@ -41,3 +41,5 @@ export function FriendRequestDialog({onSent}: {onSent?: () => void}) {
   </>;
 }
 export default FriendRequestDialog;
+
+

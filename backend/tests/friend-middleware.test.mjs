@@ -80,3 +80,4 @@ test("friend middleware authorization", async (t) => {
         assert.equal(result.code, null);
     });
 });
+

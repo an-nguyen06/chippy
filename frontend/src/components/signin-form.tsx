@@ -79,7 +79,7 @@ export function SigninForm() {
             {errors.password && <p className="signup-field-error" id="signin-password-error">{errors.password}</p>}
           </div>
           <button className="signup-submit" type="submit" disabled={isLoading}>{isLoading ? "Signing in…" : "Sign in"} <span aria-hidden="true">↗</span></button>
-          <p className="signup-message" role="status">{apiError || message || (location.state?.accountCreated ? "Account created! Sign in with your username." : "Your little corner is right where you left it.")}</p>
+          {(apiError || message || location.state?.accountCreated) && <p className="signup-message" role="status">{apiError || message || "Account created! Sign in with your username."}</p>}
           <p className="auth-switch">New around here? <Link to="/signup">Join Chippy</Link></p>
         </form>
       </div>
