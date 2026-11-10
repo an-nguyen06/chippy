@@ -87,9 +87,9 @@ export function FriendListModal({onCreated}: {onCreated: (conversation: ChatSumm
           <Button type="button" disabled={pending} variant={mode === "direct" ? "default" : "outline"} aria-pressed={mode === "direct"} onClick={() => {setMode("direct"); setSelected((previous) => previous.slice(0, 1)); setError("");}}>Direct chat</Button>
           <Button type="button" disabled={pending} variant={mode === "group" ? "default" : "outline"} aria-pressed={mode === "group"} onClick={() => {setMode("group"); setError("");}}><Users /> Group chat</Button>
         </div>
-        {mode === "group" && <><label htmlFor="new-group-name">Group name</label><Input id="new-group-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={100} disabled={pending} placeholder="e.g. fairy circle" required /></>}
+        {mode === "group" && <><label htmlFor="new-group-name">Group name</label><Input id="new-group-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={100} disabled={pending} required /></>}
         <label htmlFor="new-chat-search" className="invite-search-label"><Search size={14} /> Find a friend</label>
-        <Input id="new-chat-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name or username" disabled={pending || loading} />
+        <Input id="new-chat-search" value={search} onChange={(event) => setSearch(event.target.value)} disabled={pending || loading} />
 
         <SelectedUsersList users={selected} onRemove={(id) => {setSelected((previous) => previous.filter((friend) => friend._id !== id)); setError("");}} disabled={pending} />
         {loading ? <p role="status" className="chat-muted">Finding your people…</p> : loadError ? <div role="alert" className="friend-request-error">{loadError} <Button type="button" variant="outline" onClick={() => setVersion((value) => value + 1)}>Try again</Button></div> : !friends.length ? null : <InviteSuggestionList users={filtered} selectedIds={selected.map((friend) => friend._id)} onToggle={toggle} disabled={pending} />}

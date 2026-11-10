@@ -26,7 +26,6 @@ export function ChatWindow({conversation, onBack, onConversationUpdated}: {conve
   const olderRequest = useRef(false);
   const liveMessages = useRef(new Map<string, ChatMessage>());
   const deletedMessages = useRef(new Set<string>());
-  const [connected, setConnected] = useState(socket.connected);
   const base = `/conversations/${conversation._id}/messages`;
 
   useEffect(() => {
@@ -59,19 +58,16 @@ export function ChatWindow({conversation, onBack, onConversationUpdated}: {conve
       setMessages((previous) => previous.filter((message) => message._id !== event.messageId));
     }
     function onConnect() {
-      setConnected(true);
       // Fetch missed messages after network recovery; live events aren't durable.
       if (!mutation.current && !olderRequest.current) setRefreshKey((value) => value + 1);
     }
-    function onDisconnect() {setConnected(false);}
     socket.on("message:new", upsert);
     socket.on("message:updated", upsert);
     socket.on("message:deleted", remove);
     socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
     return () => {
       socket.off("message:new", upsert); socket.off("message:updated", upsert);
-      socket.off("message:deleted", remove); socket.off("connect", onConnect); socket.off("disconnect", onDisconnect);
+      socket.off("message:deleted", remove); socket.off("connect", onConnect);
     };
   }, [conversation._id]);
 
@@ -113,7 +109,6 @@ export function ChatWindow({conversation, onBack, onConversationUpdated}: {conve
     {error && <p role="alert" className="message-error">{error}</p>}
     <MessageList messages={messages} userId={userId} hasMore={hasMore} loadingOlder={loadingOlder} onLoadOlder={() => void loadOlder()} onEdit={(id, content) => mutate("edit", content, id)} onDelete={(id) => mutate("delete", undefined, id)} />
     <MessageInput disabled={!ready || loading || working || loadingOlder} onSend={(content) => mutate("send", content)} />
-    {!connected && <p className="message-refresh-note" role="status">Reconnecting · you can still send and refresh messages</p>}
   </section>;
 }
 export default ChatWindow;

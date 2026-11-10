@@ -22,7 +22,7 @@ export function PersonalInfoForm({onBusyChange}: {onBusyChange?: (busy: boolean)
   }
   return <form className="profile-form" onSubmit={submit}>
     <label htmlFor="profile-name">Display name</label><Input id="profile-name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} maxLength={100} required disabled={busy} />
-    <label htmlFor="profile-bio">A little about you</label><textarea id="profile-bio" value={bio} onChange={(event) => setBio(event.target.value)} maxLength={500} rows={4} disabled={busy} placeholder="Your current daydream…" /><small>{bio.length}/500</small>
+    <label htmlFor="profile-bio">A little about you</label><textarea id="profile-bio" value={bio} onChange={(event) => setBio(event.target.value)} maxLength={500} rows={4} disabled={busy} /><small>{bio.length}/500</small>
     <label htmlFor="profile-phone">Phone (optional)</label><Input id="profile-phone" type="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} disabled={busy} />
     <p className="chat-muted">Username: @{user?.username}<br />Email: {user?.email}</p>
     <Button type="submit" disabled={busy}>{busy ? "Saving…" : "Save personal info"}</Button><p className="profile-feedback" role="status">{message}</p>
