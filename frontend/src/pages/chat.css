@@ -233,8 +233,13 @@
 .new-chat-dialog #new-chat-title {font-family: var(--font-chippy-display); font-weight: 400;}
 
 .kaomoji-library-filters {display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;}
+.kaomoji-library-filters input, .kaomoji-library-filters select,
+.kaomoji-library > .chat-muted, .kaomoji-library .friend-request-pagination {
+  font-family: var(--font-chippy-ui);
+  font-weight: 400;
+}
 .kaomoji-library-filters input {flex: 1; min-width: 140px; background: #fffdfb; border: 1px solid #d3bedb; border-radius: 8px; height: 40px;}
-.kaomoji-library-filters select {max-width: 100%; min-width: 140px; padding: 8px; border: 1px solid #d3bedb; border-radius: 8px; background: #fffdfb; color: #675071; font: inherit; font-size: 13px;}
+.kaomoji-library-filters select {max-width: 100%; min-width: 140px; padding: 8px; border: 1px solid #d3bedb; border-radius: 8px; background: #fffdfb; color: #675071; font-family: var(--font-chippy-ui); font-size: 13px;}
 .kaomoji-library .kaomoji-grid {grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); max-height: 480px; overflow-y: auto; padding: 3px;}
 .kaomoji-library .kaomoji-grid button {white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; max-height: 140px; overflow-y: auto;}
 .kaomoji-attribution {display: inline-block; font-family: "Inter Variable", sans-serif; font-size: 10px; color: #8b749b; margin-top: 16px; text-underline-offset: 3px;}

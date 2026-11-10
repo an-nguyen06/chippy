@@ -33,7 +33,7 @@ export function FriendRequestDialog({onSent}: {onSent?: () => void}) {
         <h2 id="friend-dialog-title">Send a little hello</h2>
         <p id="friend-dialog-description">Ask your friend for their user ID. You'll find yours in your profile.</p>
         <label htmlFor="friend-recipient-id">Friend's user ID</label>
-        <Input id="friend-recipient-id" autoFocus value={recipientId} disabled={pending} onChange={(event) => {setRecipientId(event.target.value); setError("");}} placeholder="Paste their user ID" aria-invalid={!!error || undefined} aria-describedby={error ? "friend-dialog-error" : undefined} required />
+        <Input id="friend-recipient-id" autoFocus value={recipientId} disabled={pending} onChange={(event) => {setRecipientId(event.target.value); setError("");}} aria-invalid={!!error || undefined} aria-describedby={error ? "friend-dialog-error" : undefined} required />
         {error && <p id="friend-dialog-error" className="friend-request-error" role="alert">{error}</p>}
         <div className="friend-request-actions"><Button variant="outline" type="button" disabled={pending} onClick={() => dialog.current?.close()}>Maybe later</Button><Button type="submit" disabled={pending}>{pending ? "Sending…" : "Send request ♡"}</Button></div>
       </form>
