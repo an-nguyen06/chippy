@@ -9,6 +9,7 @@ import friendRoute from "./routes/friendRoute.js";
 import conversationRoute from "./routes/conversationRoute.js";
 import kaomojiRoute from "./routes/kaomojiRoute.js";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 
 dotenv.config();
@@ -19,6 +20,10 @@ app.set("io", setupSocket(httpServer));
 const PORT = process.env.PORT || 3000;
 
 // middlewares
+app.use(cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 

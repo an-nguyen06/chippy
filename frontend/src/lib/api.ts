@@ -1,8 +1,8 @@
 ﻿import axios from "axios";
 
-// Vite forwards /api to Express during local development.
+// Development uses Vite's proxy; production points to the deployed backend.
 export const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env?.VITE_API_URL || "/api",
   withCredentials: true,
   timeout: 15000,
 });
