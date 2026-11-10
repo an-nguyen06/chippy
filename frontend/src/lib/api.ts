@@ -1,8 +1,9 @@
 ﻿import axios from "axios";
 
-// Development uses Vite's proxy; production points to the deployed backend.
+// Production uses Vercel's same-origin proxy so session cookies are first-party.
+// Keep this explicit: a stale Vercel VITE_API_URL must not bypass the proxy.
 export const api = axios.create({
-  baseURL: import.meta.env?.VITE_API_URL || "/api",
+  baseURL: import.meta.env?.PROD ? "/api" : import.meta.env?.VITE_API_URL || "/api",
   withCredentials: true,
   timeout: 15000,
 });

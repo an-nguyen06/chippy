@@ -1,5 +1,17 @@
 # React + TypeScript + Vite
 
+## Production authentication
+
+Deploy this directory as the Vercel project root. Production API requests use
+`/api`; `vercel.json` proxies them to the Render backend before the SPA rewrite.
+This keeps authentication cookies on the frontend origin and avoids cross-origin
+API preflights. Redeploy Vercel after changing the proxy or frontend code.
+
+On Render, set `NODE_ENV=production` for secure refresh cookies and
+`CLIENT_ORIGIN=https://chippy-ten.vercel.app` for direct Socket.IO connections.
+If the backend URL changes, update the API rewrite and `VITE_SOCKET_URL` in
+`.env.production`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:
